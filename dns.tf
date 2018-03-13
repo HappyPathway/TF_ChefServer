@@ -7,7 +7,7 @@ data "aws_route53_zone" "selected" {
 resource "aws_route53_record" "service" {
   zone_id = "${data.aws_route53_zone.selected.zone_id}"
   name    = "${var.server_name}.${var.domain}"
-  type    = "CNAME"
+  type    = "A"
   ttl     = "300"
-  records = ["${aws_elb.service.dns_name}"]
+  records = ["${aws_instance.chef_server.public_ip}"]
 }

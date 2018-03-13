@@ -40,15 +40,3 @@ resource "aws_instance" "chef_server" {
     }
   }
 }
-
-
-resource "null_resource" "cluster" {
-  # Changes to any instance of the cluster requires re-provisioning
-  triggers {
-    cluster_instance_ids = "${join(",", aws_instance.chef_server.*.id)}"
-  }
-  
-  provisioner "local-exec" {
-    command = "ansible-playbook ${module.root}/playbooks/chef_setup.yaml -i ${module.root}/playbooks/inventories/ec2.py -e org"
-  }
-}

@@ -1,7 +1,7 @@
 resource "aws_security_group" "chef_server" {
   name        = "chef_server"
   description = "Allow all inbound traffic"
-  vpc_id      = "${aws_vpc.chef_server_vpc.id}"
+  vpc_id      = "${var.vpc_id}"
 
   ingress {
     from_port   = 22

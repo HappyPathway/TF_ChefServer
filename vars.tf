@@ -27,7 +27,7 @@ variable "chef_admin_email" {
 variable "org_name" {
   default = "DevOps"
 }
-variable "domain_name" {
+variable "domain" {
   default = "happypathway"
 }
 variable "server_name" {
@@ -36,3 +36,4 @@ variable "server_name" {
 variable "install_chef_manage" {
   default = true
 }
+variable "vpc_id" {}
