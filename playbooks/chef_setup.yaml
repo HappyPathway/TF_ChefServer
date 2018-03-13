@@ -1,0 +1,101 @@
+---
+- hosts: all
+  vars_files:
+    - chef_users.yaml
+    - chef_server.yaml
+
+  tasks:
+    - name: install python-pip
+      apt: name=python-pip update_cache=yes
+
+    - name: get_ec2facts
+      ec2_facts:
+
+    - name: set hostname
+      hostname:
+        name: "{{ server_name }}"
+
+    - name: set resolv.conf
+      shell: echo "search {{ chef_server.domain_name }}" >> /etc/resolvconf/resolv.conf.d/head
+
+    - name: update resolv.conf
+      shell: resolvconf -u
+
+    - name: setup hosts file 
+      template: src=templates/etc_hosts.template dest=/etc/hosts owner=root
+ 
+    - name: install pip packages
+      pip: name={{ item }}
+      with_items:
+        - awscli
+        - boto3
+        - botocore
+        - pyOpenSSL
+
+    - name: download chef-server
+      get_url: url=https://s3.amazonaws.com/happypathway-public-assets/chef/chef-server-core_12.17.33-1_amd64.deb dest=/tmp/chef-server-core_12.17.33-1.amd64.deb
+      
+    - name: install chef-server
+      apt: deb=/tmp/chef-server-core_12.17.33-1.amd64.deb
+
+    - name: reconfigure chef-server
+      shell: chef-server-ctl reconfigure 
+
+    - name: install chef-manage
+      shell: chef-server-ctl install chef-manage
+      when: install_chef_manage is defined
+
+    - name: reconfigure chef-manage and accept license
+      shell: chef-manage-ctl reconfigure --accept-license
+      when: install_chef_manage is defined
+
+    - name: delete chef org
+      shell: yes Y|chef-server-ctl org-delete {{ org.lower() }}
+      when: force_org is defined
+      ignore_errors: true
+      tags:
+        - chef_org
+
+    - name: create chef org
+      shell: chef-server-ctl org-create {{ chef_server.org.lower() }}  "{{ chef_server.org }}"
+      ignore_errors: true
+      tags:
+        - chef_org
+      register: org_validation_key
+
+    # chef-server-ctl user-create USER_NAME FIRST_NAME [MIDDLE_NAME] LAST_NAME EMAIL 'PASSWORD' (options)
+    - name: create users
+      shell: chef-server-ctl user-create {{ chef_admin.user }} {{ chef_admin.fname }} {{ chef_admin.lname }} {{ chef_admin.email }} '{{ chef_admin.password }}'
+      ignore_errors: true
+      register: admin_key
+      tags:
+        - chef_users
+
+    # chef-server-ctl org-user-add ORG_NAME USER_NAME (options)
+    - name: add admin org-users
+      ignore_errors: true 
+      shell: chef-server-ctl org-user-add --admin {{ chef_server.org.lower() }} {{ chef_admin.user }}
+      tags:
+        - chef_users
+
+    - name: create .chef directory in repo
+      file: path="{{ playbook_dir }}/../../.chef" state=directory
+      delegate_to: localhost
+      become: no
+
+    - name: download admin key
+      copy: content={{ admin_key.stdout }} dest={{ playbook_dir }}/../../.chef/{{ chef_admin.user }}.pem
+      delegate_to: localhost
+      become: no
+
+    - name: download org validation key
+      copy: content={{ org_validation_key.stdout }} dest={{ playbook_dir }}/../../.chef/{{ chef_server.org.lower() }}-validator.pem
+      delegate_to: localhost
+      become: no
+
+    - name: setup knife.rb
+      template: src=templates/knife.rb.template dest="{{ playbook_dir }}/../../.chef/knife.rb"
+      delegate_to: localhost
+      become: no
+
+    

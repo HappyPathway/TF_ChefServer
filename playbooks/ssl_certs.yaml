@@ -1,0 +1,21 @@
+- name: Ensure directory exists for local self-signed TLS certs.
+  file:
+    path: /etc/chef-server/
+    state: directory
+
+- name: Generate an OpenSSL private key.
+  openssl_privatekey:
+    path: /etc/chef-server/chef.pem
+
+- name: Generate an OpenSSL CSR.
+  openssl_csr:
+    path: /etc/chef-server/chef.csr
+    privatekey_path: /etc/chef-server/chef.pem
+    common_name: "{{ server_name }}"
+
+- name: Generate a Self Signed OpenSSL certificate.
+  openssl_certificate:
+    path: /etc/chef-server/chef.cert
+    privatekey_path: /etc/chef-server/chef.pem
+    csr_path: /etc/chef-server/chef.csr
+    provider: selfsigned
