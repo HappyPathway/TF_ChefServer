@@ -79,22 +79,22 @@
         - chef_users
 
     - name: create .chef directory in repo
-      file: path="{{ playbook_dir }}/../../.chef" state=directory
+      file: path="{{ chef_dir }}" state=directory
       delegate_to: localhost
       become: no
 
     - name: download admin key
-      copy: content={{ admin_key.stdout }} dest={{ playbook_dir }}/../../.chef/{{ chef_admin.user }}.pem
+      copy: content={{ admin_key.stdout }} dest={{ chef_dir }}/{{ chef_admin.user }}.pem
       delegate_to: localhost
       become: no
 
     - name: download org validation key
-      copy: content={{ org_validation_key.stdout }} dest={{ playbook_dir }}/../../.chef/{{ chef_server.org.lower() }}-validator.pem
+      copy: content={{ org_validation_key.stdout }} dest={{ chef_dir }}/{{ chef_server.org.lower() }}-validator.pem
       delegate_to: localhost
       become: no
 
     - name: setup knife.rb
-      template: src=templates/knife.rb.template dest="{{ playbook_dir }}/../../.chef/knife.rb"
+      template: src=templates/knife.rb.template dest="{{ chef_dir }}/knife.rb"
       delegate_to: localhost
       become: no
 

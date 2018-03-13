@@ -29,12 +29,12 @@ resource "null_resource" "ansible" {
     command = "echo ${data.template_file.init.rendered} > ${path.module}/playbooks/chef_users.yaml"
   }
   provisioner "local-exec" {
-    command = "sudo pip install -r ${module.root}/requirements.txt"
+    command = "sudo pip install -r ${path.module}/requirements.txt"
   }
   provisioner "local-exec" {
-    command = "ansible-playbook ${module.root}/playbooks/chef_setup.yaml -i ${module.root}/playbooks/inventories/ec2.py"
+    command = "ansible-playbook ${path.module}/playbooks/chef_setup.yaml -i ${path.module}/playbooks/inventories/ec2.py -e chef_dir=${path.cwd}}/.chef"
   }
   provisioner "local-exec" {
-    command "rm ${module.root}/playbooks/chef_server.yaml ${module.root}/playbooks/chef_users.yaml"
+    command "rm ${path.module}/playbooks/chef_server.yaml ${path.module}/playbooks/chef_users.yaml"
   }
 }
