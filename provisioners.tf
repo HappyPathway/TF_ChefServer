@@ -9,14 +9,14 @@ data "template_file" "chef_users" {
   }
 }
 
+
 data "template_file" "chef_server" {
   template = "${file("${path.module}/playbooks/chef_server.yaml.tmpl")}"
   vars {
-    chef_admin_user     = "${var.chef_admin_user}"
-    chef_admin_fname    = "${var.chef_admin_fname}"
-    chef_admin_lname    = "${var.chef_admin_lname}"
-    chef_admin_email    = "${var.chef_admin_email}"
-    chef_admin_password = "${var.chef_admin_password}"
+    org_name     = "${var.org_name}"
+    domain_name    = "${var.domain}"
+    server_name    = "${var.server_name}"
+    install_chef_manage = "${var.install_chef_manage}"
   }
 }
 
