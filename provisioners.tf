@@ -26,13 +26,10 @@ resource "null_resource" "ansible" {
     cluster_instance_ids = "${join(",", aws_instance.chef_server.*.id)}"
   }
   provisioner "local-exec" {
-    command = "echo ${data.template_file.chef_users.rendered} > ${path.module}/playbooks/chef_users.yaml"
+    command = "echo '${data.template_file.chef_users.rendered}' > ${path.module}/playbooks/chef_users.yaml"
   }
   provisioner "local-exec" {
-    command = "echo ${data.template_file.chef_server.rendered} > ${path.module}/playbooks/chef_server.yaml"
-  }
-  provisioner "local-exec" {
-    command = "sudo pip install -r ${path.module}/requirements.txt"
+    command = "echo '${data.template_file.chef_server.rendered}' > ${path.module}/playbooks/chef_server.yaml"
   }
   provisioner "local-exec" {
     command = "ansible-playbook ${path.module}/playbooks/chef_setup.yaml -i ${path.module}/playbooks/inventories/ec2.py -e chef_dir=${path.cwd}}/.chef"
