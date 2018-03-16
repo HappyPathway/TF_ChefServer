@@ -1,9 +1,9 @@
-data "aws_ami" "ubuntu" {
+data "aws_ami" "ChefServer" {
   most_recent = true
 
   filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*"]
+    name   = "role"
+    values = ["ChefServer"]
   }
 
   filter {
@@ -11,11 +11,11 @@ data "aws_ami" "ubuntu" {
     values = ["hvm"]
   }
 
-  owners = ["099720109477"] # Canonical
+  owners = ["061371841117"] # HappyPathway
 }
 
 resource "aws_instance" "chef_server" {
-  ami                         = "${data.aws_ami.ubuntu.id}"
+  ami                         = "${data.aws_ami.ChefServer.id}"
   instance_type               = "${var.instance_type}"
   key_name                    = "${var.key_name}"
   subnet_id                   = "${var.public_subnet_id}"
@@ -30,8 +30,9 @@ resource "aws_instance" "chef_server" {
 
   provisioner "remote-exec" {
     inline = [
-      "sudo apt-get update",
-      "sudo apt-get install -y python python-dev python-pip",
+      "sudo chef-server-ctl org-create ${var.chef_org} ${var.chef_org}"
+      "sudo chef-server-ctl user-create ${var.chef_admin_user} ${var.chef_admin_fname} ${var.chef_admin_lname} ${var.chef_admin_email} '${var.chef_admin_password}'",
+      "sudo chef-server-ctl org-user-add --admin ${var.chef_org} ${var.chef_admin_user}"
     ]
 
     connection {

@@ -1,2 +1,0 @@
-nginx['ssl_certificate']  = "/etc/chef-server/chef.cert"
-nginx['ssl_certificate_key']  = "/etc/chef-server/chef.pem"
