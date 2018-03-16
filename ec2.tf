@@ -6,11 +6,6 @@ data "aws_ami" "ChefServer" {
     values = ["ChefServer"]
   }
 
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
   owners = ["061371841117"] # HappyPathway
 }
 
