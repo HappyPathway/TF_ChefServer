@@ -1,8 +1,21 @@
 data "aws_ami" "ChefServer" {
   most_recent      = true
-  executable_users = ["self"]
-  name_regex = "ChefServer"
+  owners = ["061371841117"]
+  filter {
+    name   = "tag:role"
+    values = ["ChefServer"]
+  }
 }
+
+resource "random_string" "password" {
+  length = 24
+  special = true
+  keepers = {
+    # Generate a new id each time we switch to a new AMI id
+    ami_id = "${var.aws_instance.chef_server.id}"
+  }
+}
+
 
 resource "aws_instance" "chef_server" {
   ami                         = "${data.aws_ami.ChefServer.id}"
@@ -20,8 +33,8 @@ resource "aws_instance" "chef_server" {
 
   provisioner "remote-exec" {
     inline = [
-      "sudo chef-server-ctl org-create ${var.chef_org} ${var.chef_org}",
-      "sudo chef-server-ctl user-create ${var.chef_admin_user} ${var.chef_admin_fname} ${var.chef_admin_lname} ${var.chef_admin_email} '${var.chef_admin_password}'",
+      "sudo chef-server-ctl org-create ${var.chef_org} ${var.chef_org} --filename /etc/chef/${var.chef_org}.pem",
+      "sudo chef-server-ctl user-create ${var.chef_admin_user} ${var.chef_admin_fname} ${var.chef_admin_lname} ${var.chef_admin_email} '${random_string.password.result}' --filename /etc/chef/${var.chef_admin_user}.pem",
       "sudo chef-server-ctl org-user-add --admin ${var.chef_org} ${var.chef_admin_user}"
     ]
 
@@ -30,4 +43,17 @@ resource "aws_instance" "chef_server" {
       user = "ubuntu"
     }
   }
+}
+
+
+output "chef_host" {
+  value = "${var.chef_org}"
+}
+
+output "chef_user" {
+  value = "${var.chef_admin_user}"
+}
+
+output "chef_password" {
+  value = "${random_string.password.result}"
 }

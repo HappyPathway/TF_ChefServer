@@ -10,9 +10,7 @@ variable "key_name" {}
 variable "chef_admin_user" {
   default = "admin"
 }
-variable "chef_admin_password" {
-  default = "admin"
-}
+
 variable "chef_admin_fname" {
   default = "Admin"
 }
