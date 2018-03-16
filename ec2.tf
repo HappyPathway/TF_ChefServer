@@ -12,7 +12,7 @@ resource "random_string" "password" {
   special = true
   keepers = {
     # Generate a new id each time we switch to a new AMI id
-    ami_id = "${var.aws_instance.chef_server.id}"
+    instance_id = "${aws_instance.chef_server.id}"
   }
 }
 
