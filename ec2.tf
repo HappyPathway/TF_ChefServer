@@ -1,12 +1,7 @@
 data "aws_ami" "ChefServer" {
-  most_recent = true
-
-  filter {
-    name   = "tag:role"
-    values = ["ChefServer"]
-  }
-
-  owners = ["061371841117"] # HappyPathway
+  most_recent      = true
+  executable_users = ["self"]
+  name_regex = "ChefServer"
 }
 
 resource "aws_instance" "chef_server" {
