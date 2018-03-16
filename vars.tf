@@ -22,7 +22,9 @@ variable "chef_admin_lname" {
 variable "chef_admin_email" {
   default = "devops@happypathway.com"
 }
-
+variable "chef_org" {
+  default = "devops"
+}
 
 variable "org_name" {
   default = "DevOps"
