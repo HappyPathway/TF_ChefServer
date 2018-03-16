@@ -2,7 +2,7 @@ data "aws_ami" "ChefServer" {
   most_recent = true
 
   filter {
-    name   = "role"
+    name   = "tag:role"
     values = ["ChefServer"]
   }
 
