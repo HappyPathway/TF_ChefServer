@@ -10,10 +10,6 @@ data "aws_ami" "ChefServer" {
 resource "random_string" "password" {
   length = 24
   special = true
-  keepers = {
-    # Generate a new id each time we switch to a new AMI id
-    instance_id = "${aws_instance.chef_server.id}"
-  }
 }
 
 
