@@ -42,14 +42,4 @@ resource "aws_instance" "chef_server" {
 }
 
 
-output "chef_host" {
-  value = "${var.chef_org}"
-}
 
-output "chef_user" {
-  value = "${var.chef_admin_user}"
-}
-
-output "chef_password" {
-  value = "${random_string.password.result}"
-}
